@@ -851,7 +851,7 @@ checksum = "1c2650169161b64f9a93e41f13253701fdf971dc95265ed667d17bea6d2a334f"
 dependencies = [
  "bevy_reflect",
  "derive_more",
- "glam 0.29.3",
+ "glam",
  "itertools",
  "rand 0.8.5",
  "rand_distr",
@@ -888,7 +888,7 @@ version = "0.15.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "226f663401069ded4352ed1472a85bb1f43e2b7305d6a50e53a4f6508168e380"
 dependencies = [
- "glam 0.29.3",
+ "glam",
 ]
 
 [[package]]
@@ -964,7 +964,7 @@ dependencies = [
  "disqualified",
  "downcast-rs",
  "erased-serde",
- "glam 0.29.3",
+ "glam",
  "petgraph",
  "serde",
  "smallvec",
@@ -1393,30 +1393,6 @@ name = "bit-vec"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5e764a1d40d510daf35e07be9eb06e75770908c27d411ee6c92109c9840eaaf7"
-
-[[package]]
-name = "bitcode"
-version = "0.6.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf300f4aa6e66f3bdff11f1236a88c622fe47ea814524792240b4d554d9858ee"
-dependencies = [
- "arrayvec",
- "bitcode_derive",
- "bytemuck",
- "glam 0.30.3",
- "serde",
-]
-
-[[package]]
-name = "bitcode_derive"
-version = "0.6.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "42b6b4cb608b8282dc3b53d0f4c9ab404655d562674c682db7e6c0458cc83c23"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.101",
-]
 
 [[package]]
 name = "bitflags"
@@ -1941,7 +1917,6 @@ dependencies = [
  "bevy",
  "bevy_replicon",
  "bevy_replicon_renet",
- "bitcode",
  "clap",
  "rand 0.9.1",
  "serde",
@@ -2069,7 +2044,7 @@ checksum = "b0a05902cf601ed11d564128448097b98ebe3c6574bd7b6a653a3d56d54aa020"
 dependencies = [
  "const_panic",
  "encase_derive",
- "glam 0.29.3",
+ "glam",
  "thiserror",
 ]
 
@@ -2399,12 +2374,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "glam"
-version = "0.30.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b46b9ca4690308844c644e7c634d68792467260e051c8543e0c7871662b3ba7"
-
-[[package]]
 name = "glob"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2573,7 +2542,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d9c9e718d32b6e6b2b32354e1b0367025efdd0b11d6a740b905ddf5db1074679"
 dependencies = [
  "constgebra",
- "glam 0.29.3",
+ "glam",
  "tinyvec",
 ]
 
