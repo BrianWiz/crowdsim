@@ -22,7 +22,6 @@ struct ServerPersonLastState {
     velocity: I16Vec2,
     density: f32,
     pressure: f32,
-    goal_position: I16Vec2,
 }
 
 #[derive(Resource)]
@@ -133,7 +132,6 @@ pub fn server_spawn_people(commands: &mut Commands) {
                 velocity: I16Vec2::ZERO,
                 density: 0.0,
                 pressure: 0.0,
-                goal_position: I16Vec2::ZERO,
             },
             Replicated,
         ));
@@ -193,7 +191,6 @@ fn rolling_sync_system(
                     server_person_last_state.velocity = new_velocity;
                     server_person_last_state.density = new_density;
                     server_person_last_state.pressure = new_pressure;
-                    server_person_last_state.goal_position = new_goal_position;
 
                     sync_point.seq_num += 1;
                 }
@@ -263,14 +260,14 @@ fn rolling_sync_system(
     // First, always add cells that are in the frustum and need syncing
     for cell_idx in 0..grid.cells.len() {
         if in_frustum_cells[cell_idx] {
-            let is_newly_visible = !tracker.previously_visible[cell_idx];
+            /*let is_newly_visible = !tracker.previously_visible[cell_idx];
             //let time_since_sync = tracker.current_frame - tracker.cell_last_sync[cell_idx];
 
             if is_newly_visible
             /*|| time_since_sync >= SYNC_INTERVAL_IN_FRUSTUM*/
-            {
-                cells_to_sync.push(cell_idx);
-            }
+            {*/
+            cells_to_sync.push(cell_idx);
+            //}
         }
     }
 
@@ -360,7 +357,6 @@ fn rolling_sync_system(
                 server_person_last_state.velocity = new_velocity;
                 server_person_last_state.density = new_density;
                 server_person_last_state.pressure = new_pressure;
-                server_person_last_state.goal_position = new_goal_position;
 
                 if sync_point.position.is_some()
                     || sync_point.rotation.is_some()
