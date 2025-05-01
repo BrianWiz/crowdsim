@@ -13,13 +13,13 @@ use serde::{Deserialize, Serialize};
 
 use utils::quantize_vec3;
 
-pub const ARENA_SIZE: f32 = 450.0;
+pub const ARENA_SIZE: f32 = 250.0;
 
 pub const SPATIALIZATION_GRID_CELLS_PER_AXIS: usize = 50;
 pub const SPATIALIZATION_CELL_SIZE: f32 = ARENA_SIZE / SPATIALIZATION_GRID_CELLS_PER_AXIS as f32;
 pub const SPATIALIZATION_MAX_NEIGHBORS: usize = 200;
 
-pub const PERSON_COUNT: usize = 1000;
+pub const PERSON_COUNT: usize = 5000;
 pub const PERSON_GOAL_DETECTION_RADIUS: f32 = 20.0;
 pub const PERSON_FRICTION: f32 = 0.75;
 pub const PERSON_ACCELERATION: f32 = 2.5;
@@ -31,7 +31,7 @@ pub const SIMULATION_SPEED: f32 = 1.0;
 pub const SIMULATION_PERSON_AVOIDANCE_RADIUS: f32 = PERSON_SIZE * 2.0;
 pub const SIMULATION_PRESSURE_CONSTANT: f32 = 30.0;
 pub const SIMULATION_TARGET_DENSITY: f32 = 20.0;
-pub const SIMULATION_COMPUTE_EVERY_N_FRAMES: u32 = 4;
+pub const SIMULATION_COMPUTE_EVERY_N_FRAMES: Option<u32> = None;
 
 #[derive(Resource)]
 pub struct IsServer;

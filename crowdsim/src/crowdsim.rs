@@ -41,10 +41,12 @@ fn calculate_density_pressure(
     mut query: Query<(&Transform, &mut PersonDensity, &mut PersonPressure)>,
     mut frame: Local<u32>,
 ) {
-    *frame += 1;
+    if let Some(compute_every_n_frames) = SIMULATION_COMPUTE_EVERY_N_FRAMES {
+        *frame += 1;
 
-    if *frame % SIMULATION_COMPUTE_EVERY_N_FRAMES == 0 {
-        return;
+        if *frame % compute_every_n_frames == 0 {
+            return;
+        }
     }
 
     for (transform, mut person_density, mut person_pressure) in query.iter_mut() {
@@ -80,10 +82,12 @@ fn calculate_forces(
     mut grid: ResMut<SpatialGrid>,
     mut frame: Local<u32>,
 ) {
-    *frame += 1;
+    if let Some(compute_every_n_frames) = SIMULATION_COMPUTE_EVERY_N_FRAMES {
+        *frame += 1;
 
-    if *frame % SIMULATION_COMPUTE_EVERY_N_FRAMES == 0 {
-        return;
+        if *frame % compute_every_n_frames == 0 {
+            return;
+        }
     }
 
     let dt = fixed_time.delta_secs() * SIMULATION_SPEED;
