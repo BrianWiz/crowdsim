@@ -1,5 +1,9 @@
-use bevy::{math::I16Vec2, pbr::NotShadowCaster, prelude::*, utils::HashSet};
-use bevy_replicon::prelude::*;
+use bevy::{ecs::component::Tick, math::I16Vec2, pbr::NotShadowCaster, prelude::*, utils::HashSet};
+use bevy_replicon::{
+    prelude::*,
+    shared::{backend::replicon_server, replicon_tick::RepliconTick},
+};
+use bevy_replicon_renet::renet::RenetServer;
 
 use rand::prelude::*;
 use std::collections::HashMap;
@@ -109,7 +113,6 @@ pub fn server_spawn_people(commands: &mut Commands) {
                 velocity: None,
                 density: None,
                 pressure: None,
-                goal_position: None,
             },
             PersonInitialStateSyncPoint {
                 position: quantize_vec3(Vec3::new(x, y, z)),
@@ -117,13 +120,13 @@ pub fn server_spawn_people(commands: &mut Commands) {
                 velocity: quantize_vec3(velocity),
                 density: 0.0,
                 pressure: 0.0,
-                goal_position: quantize_vec3(Vec3::new(goal_x, goal_y, goal_z)),
             },
             PersonColor(Color::hsl(
                 rng.random_range(0.0..360.0),
                 rng.random_range(0.0..1.0),
                 rng.random_range(0.0..1.0),
             )),
+            PersonGoalPosition(quantize_vec3(Vec3::new(goal_x, goal_y, goal_z))),
             ServerPersonLastState {
                 position: I16Vec2::ZERO,
                 rotation: 0.0,
@@ -141,6 +144,7 @@ fn rolling_sync_system(
     grid: Res<SpatialGrid>,
     mut tracker: ResMut<SyncTracker>,
     clients: Query<(Entity, &ViewFrustum)>,
+    renet_server: Res<RenetServer>,
     mut query: Query<(
         Entity,
         &Transform,
@@ -182,7 +186,6 @@ fn rolling_sync_system(
                     sync_point.velocity = Some(new_velocity);
                     sync_point.density = Some(new_density);
                     sync_point.pressure = Some(new_pressure);
-                    sync_point.goal_position = Some(new_goal_position);
 
                     // Update last state
                     server_person_last_state.position = new_position;
@@ -200,7 +203,6 @@ fn rolling_sync_system(
     }
 
     const CELLS_PER_FRAME: usize = 500;
-    const SYNC_INTERVAL_IN_FRUSTUM: u32 = 1;
     const SYNC_INTERVAL_OUTSIDE: u32 = 4;
 
     // Get a list of all view frustums from connected clients
@@ -262,9 +264,11 @@ fn rolling_sync_system(
     for cell_idx in 0..grid.cells.len() {
         if in_frustum_cells[cell_idx] {
             let is_newly_visible = !tracker.previously_visible[cell_idx];
-            let time_since_sync = tracker.current_frame - tracker.cell_last_sync[cell_idx];
+            //let time_since_sync = tracker.current_frame - tracker.cell_last_sync[cell_idx];
 
-            if is_newly_visible || time_since_sync >= SYNC_INTERVAL_IN_FRUSTUM {
+            if is_newly_visible
+            /*|| time_since_sync >= SYNC_INTERVAL_IN_FRUSTUM*/
+            {
                 cells_to_sync.push(cell_idx);
             }
         }
@@ -350,12 +354,6 @@ fn rolling_sync_system(
                     sync_point.pressure = None;
                 }
 
-                if force_update || new_goal_position != server_person_last_state.goal_position {
-                    sync_point.goal_position = Some(new_goal_position);
-                } else {
-                    sync_point.goal_position = None;
-                }
-
                 // mark server person last state as updated
                 server_person_last_state.position = new_position;
                 server_person_last_state.rotation = new_rotation;
@@ -369,7 +367,6 @@ fn rolling_sync_system(
                     || sync_point.velocity.is_some()
                     || sync_point.density.is_some()
                     || sync_point.pressure.is_some()
-                    || sync_point.goal_position.is_some()
                 {
                     sync_point.seq_num += 1;
                 }

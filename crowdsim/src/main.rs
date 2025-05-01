@@ -48,7 +48,7 @@ pub struct Person;
 #[derive(Component)]
 pub struct PersonVelocity(I16Vec2, I16Vec2 /* Previous velocity */);
 
-#[derive(Component)]
+#[derive(Component, Serialize, Deserialize)]
 pub struct PersonGoalPosition(I16Vec2);
 
 impl PersonGoalPosition {
@@ -79,7 +79,6 @@ pub struct PersonStateSyncPoint {
     velocity: Option<I16Vec2>,
     density: Option<f32>,
     pressure: Option<f32>,
-    goal_position: Option<I16Vec2>,
 }
 
 #[derive(Component, Serialize, Deserialize)]
@@ -89,7 +88,6 @@ pub struct PersonInitialStateSyncPoint {
     velocity: I16Vec2,
     density: f32,
     pressure: f32,
-    goal_position: I16Vec2,
 }
 
 #[derive(Component)]
@@ -139,6 +137,7 @@ fn main() {
         .replicate::<PersonStateSyncPoint>()
         .replicate::<PersonInitialStateSyncPoint>()
         .replicate::<PersonColor>()
+        .replicate::<PersonGoalPosition>()
         .add_plugins(crate::cli::CliPlugin)
         .add_plugins(crate::client::ClientPlugin)
         .add_plugins(crate::server::ServerPlugin)

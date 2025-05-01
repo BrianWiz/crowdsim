@@ -61,7 +61,6 @@ fn on_spawn_person_system(
                     ),
                     PersonDensity(sync_point.density),
                     PersonPressure(sync_point.pressure),
-                    PersonGoalPosition(sync_point.goal_position),
                     PersonVelocity(sync_point.velocity, sync_point.velocity),
                     PersonStateSyncPointLastReceived(0),
                 ))
@@ -108,7 +107,6 @@ fn on_receive_person_state_sync_point(
 ) {
     //let nudge_time = replicon_client.stats().rtt as f32 * 0.5;
     let nudge_time = 0.0;
-    let nudge_frames = (nudge_time / fixed_time.delta_secs()).ceil() as u32;
 
     let mut person_to_visuals = HashMap::new();
     for visuals in visuals.iter_mut() {
@@ -149,7 +147,7 @@ fn on_receive_person_state_sync_point(
         }
 
         // Apply simple prediction if we received a position update
-        // if received_position_update && nudge_frames > 0 {
+        // if received_position_update > 0 {
         //     let prediction_velocity = dequantize_vec3(person_velocity.0);
         //     let prediction_offset = prediction_velocity * nudge_time;
         //     new_position += prediction_offset;
@@ -161,11 +159,9 @@ fn on_receive_person_state_sync_point(
         if let Some(density) = sync_point.density {
             person_density.0 = density;
         }
+
         if let Some(pressure) = sync_point.pressure {
             person_pressure.0 = pressure;
-        }
-        if let Some(goal_position) = sync_point.goal_position {
-            person_goal_position.0 = goal_position;
         }
 
         last_received.0 = sync_point.seq_num;
