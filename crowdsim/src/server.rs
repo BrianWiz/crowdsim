@@ -5,9 +5,9 @@ use rand::prelude::*;
 use std::collections::HashMap;
 
 use crate::{
-    ARENA_SIZE, SPATIALIZATION_CELL_SIZE, IsServer, PERSON_COUNT, Person, PersonColor, PersonDensity,
-    PersonGoalPosition, PersonInitialStateSyncPoint, PersonPressure, PersonStateSyncPoint,
-    PersonVelocity, SPATIALIZATION_GRID_CELLS_PER_AXIS, ViewFrustum, ViewFrustumEvent,
+    ARENA_SIZE, IsServer, PERSON_COUNT, Person, PersonColor, PersonDensity, PersonGoalPosition,
+    PersonInitialStateSyncPoint, PersonPressure, PersonStateSyncPoint, PersonVelocity,
+    SPATIALIZATION_CELL_SIZE, SPATIALIZATION_GRID_CELLS_PER_AXIS, ViewFrustum, ViewFrustumEvent,
     spatial::SpatialGrid, utils::quantize_vec3,
 };
 
@@ -154,8 +154,8 @@ fn rolling_sync_system(
 ) {
     tracker.current_frame += 1;
 
-    const CELLS_PER_FRAME: usize = 5;
-    const SYNC_INTERVAL_IN_FRUSTUM: u32 = 0;
+    const CELLS_PER_FRAME: usize = 200;
+    const SYNC_INTERVAL_IN_FRUSTUM: u32 = 1;
     const SYNC_INTERVAL_OUTSIDE: u32 = 4;
 
     // Get a list of all view frustums from connected clients
@@ -412,7 +412,11 @@ fn visualize_visible_cells(
 
         let entity = commands
             .spawn((
-                Mesh3d::from(meshes.add(Cuboid::new(SPATIALIZATION_CELL_SIZE, 1.0, SPATIALIZATION_CELL_SIZE))),
+                Mesh3d::from(meshes.add(Cuboid::new(
+                    SPATIALIZATION_CELL_SIZE,
+                    1.0,
+                    SPATIALIZATION_CELL_SIZE,
+                ))),
                 MeshMaterial3d::from(materials.add(StandardMaterial {
                     base_color: Color::srgba(0.0, 1.0, 0.0, 0.3),
                     alpha_mode: AlphaMode::Blend,
