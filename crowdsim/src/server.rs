@@ -7,8 +7,8 @@ use std::collections::HashMap;
 use crate::{
     ARENA_SIZE, IsServer, PERSON_COUNT, Person, PersonColor, PersonDensity, PersonGoalPosition,
     PersonInitialStateSyncPoint, PersonPressure, PersonStateSyncPoint, PersonVelocity,
-    SPATIALIZATION_CELL_SIZE, SPATIALIZATION_GRID_CELLS_PER_AXIS, ViewFrustum, ViewFrustumEvent,
-    spatial::SpatialGrid, utils::quantize_vec3,
+    SPATIALIZATION_CELL_SIZE, SPATIALIZATION_GRID_CELLS_PER_AXIS, SYNC_RELIABLY, ViewFrustum,
+    ViewFrustumEvent, spatial::SpatialGrid, utils::quantize_vec3,
 };
 
 #[derive(Component)]
@@ -154,7 +154,52 @@ fn rolling_sync_system(
 ) {
     tracker.current_frame += 1;
 
-    const CELLS_PER_FRAME: usize = 200;
+    if SYNC_RELIABLY {
+        // Send everything every frame
+        for cell_idx in 0..grid.cells.len() {
+            for &(entity, _) in &grid.cells[cell_idx] {
+                if let Ok((
+                    _,
+                    transform,
+                    mut server_person_last_state,
+                    person_velocity,
+                    person_density,
+                    person_pressure,
+                    person_goal_position,
+                    mut sync_point,
+                )) = query.get_mut(entity)
+                {
+                    let new_position = quantize_vec3(transform.translation);
+                    let new_rotation = transform.rotation.to_euler(EulerRot::YXZ).0;
+                    let new_velocity = person_velocity.0;
+                    let new_density = person_density.0;
+                    let new_pressure = person_pressure.0;
+                    let new_goal_position = person_goal_position.0;
+
+                    // Always send all fields when SYNC_RELIABLY is true
+                    sync_point.position = Some(new_position);
+                    sync_point.rotation = Some(new_rotation);
+                    sync_point.velocity = Some(new_velocity);
+                    sync_point.density = Some(new_density);
+                    sync_point.pressure = Some(new_pressure);
+                    sync_point.goal_position = Some(new_goal_position);
+
+                    // Update last state
+                    server_person_last_state.position = new_position;
+                    server_person_last_state.rotation = new_rotation;
+                    server_person_last_state.velocity = new_velocity;
+                    server_person_last_state.density = new_density;
+                    server_person_last_state.pressure = new_pressure;
+                    server_person_last_state.goal_position = new_goal_position;
+
+                    sync_point.seq_num += 1;
+                }
+            }
+        }
+        return;
+    }
+
+    const CELLS_PER_FRAME: usize = 500;
     const SYNC_INTERVAL_IN_FRUSTUM: u32 = 1;
     const SYNC_INTERVAL_OUTSIDE: u32 = 4;
 

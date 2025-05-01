@@ -149,12 +149,11 @@ fn on_receive_person_state_sync_point(
         }
 
         // Apply simple prediction if we received a position update
-        if received_position_update && nudge_frames > 0 {
-            let prediction_velocity = dequantize_vec3(person_velocity.0);
-            let prediction_offset =
-                prediction_velocity * fixed_time.delta_secs() * (nudge_frames as f32) * 0.5;
-            new_position += prediction_offset;
-        }
+        // if received_position_update && nudge_frames > 0 {
+        //     let prediction_velocity = dequantize_vec3(person_velocity.0);
+        //     let prediction_offset = prediction_velocity * nudge_time;
+        //     new_position += prediction_offset;
+        // }
 
         transform.translation = new_position;
         transform.rotation = new_rotation;

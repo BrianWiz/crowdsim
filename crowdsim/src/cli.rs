@@ -13,7 +13,7 @@ use bevy_replicon_renet::renet::{ConnectionConfig, RenetClient, RenetServer};
 use clap::Parser;
 
 use crate::server::server_spawn_people;
-use crate::{IsClient, IsServer};
+use crate::{IsClient, IsServer, SYNC_RELIABLY};
 
 #[derive(Parser, Resource)]
 enum Cli {
@@ -37,6 +37,7 @@ impl Default for Cli {
 }
 
 fn read_cli_system(
+    fixed_time: Res<Time<Fixed>>,
     mut commands: Commands,
     cli: Res<Cli>,
     channels: Res<RepliconChannels>,
@@ -46,14 +47,15 @@ fn read_cli_system(
     match *cli {
         Cli::Server { port } => {
             info!("starting server at port {port}");
-            // Get default channel configs
-            let server_channels_config = channels.server_configs();
+            let mut server_channels_config = channels.server_configs();
             let client_channels_config = channels.client_configs();
 
-            // Configure replication channels to be reliable with large buffers
-            // server_channels_config[1].send_type = bevy_replicon_renet::renet::SendType::ReliableOrdered {
-            //     resend_time: std::time::Duration::from_secs_f32(fixed_time.delta_secs())
-            // };
+            if SYNC_RELIABLY {
+                server_channels_config[1].send_type =
+                    bevy_replicon_renet::renet::SendType::ReliableOrdered {
+                        resend_time: std::time::Duration::from_secs_f32(fixed_time.delta_secs()),
+                    };
+            }
 
             let server = RenetServer::new(ConnectionConfig {
                 server_channels_config,
@@ -90,14 +92,15 @@ fn read_cli_system(
         }
         Cli::Client { port, ip } => {
             info!("connecting to {ip}:{port}");
-            // Get default channel configs
-            let server_channels_config = channels.server_configs();
+            let mut server_channels_config = channels.server_configs();
             let client_channels_config = channels.client_configs();
 
-            // Configure replication channels to be reliable with large buffers
-            // server_channels_config[1].send_type = bevy_replicon_renet::renet::SendType::ReliableOrdered {
-            //     resend_time: std::time::Duration::from_secs_f32(fixed_time.delta_secs()),
-            // };
+            if SYNC_RELIABLY {
+                server_channels_config[1].send_type =
+                    bevy_replicon_renet::renet::SendType::ReliableOrdered {
+                        resend_time: std::time::Duration::from_secs_f32(fixed_time.delta_secs()),
+                    };
+            }
 
             let client = RenetClient::new(ConnectionConfig {
                 server_channels_config,
